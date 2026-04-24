@@ -77,7 +77,7 @@ EduGuardian-AI/
 +-- docs/
 |   +-- EduGuardian_User_Guide.docx
 |   +-- groupDeclarationSheet.docx
-|   +-- Presentation_ICT304_Assignment_2.pptx
+|   +-- Presentation.pptx
 |   +-- Report_EduGuardianAI.docx
 |
 +-- README.md             - Main project overview
