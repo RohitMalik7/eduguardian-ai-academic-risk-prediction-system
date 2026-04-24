@@ -1,0 +1,53 @@
+# =============================================================================
+# requirements.txt
+# ICT304 - EduGuardian AI - Academic Risk Prediction & Early Intervention System
+# Murdoch University - School of Information Technology
+#
+# Install all dependencies with:
+#   pip install -r requirements.txt
+#
+# Tested on:
+#   Python   : 3.12.7
+#   Platform : Windows 10/11 (Anaconda distribution)
+#
+# Notes:
+# - Standard library modules (os, sys, json, sqlite3, datetime, functools,
+#   subprocess, warnings, pathlib) are NOT included here.
+# - Frontend libraries (Chart.js, Font Awesome, Google Fonts) are loaded via CDN
+#   and do NOT need to be installed via pip.
+# =============================================================================
+
+
+# ── Web Framework ─────────────────────────────────────────────────────────────
+Flask==3.1.0
+
+
+# ── Machine Learning ──────────────────────────────────────────────────────────
+scikit-learn==1.5.2
+imbalanced-learn==0.12.4
+xgboost==2.1.3
+
+
+# ── Model Persistence ─────────────────────────────────────────────────────────
+joblib==1.4.2
+
+
+# ── Visualisation / Evaluation ────────────────────────────────────────────────
+matplotlib==3.9.4
+seaborn==0.13.2
+
+
+# ── PDF Export (used in routes.py) ────────────────────────────────────────────
+fpdf2==2.8.2
+reportlab==4.2.5
+
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest==8.4.1
+
+# ── Data Processing ───────────────────────────────────────────────────────────
+pandas==2.2.3
+numpy==1.26.4
+
+# ── Standard Library (no install needed - listed for documentation only) ─────
+# os, sys, json, sqlite3, subprocess, datetime, functools, warnings
