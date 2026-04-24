@@ -82,7 +82,7 @@ EduGuardian-AI/
 |   +-- Report_EduGuardianAI.docx
 |
 +-- README.md             - Main project overview
-
+```
 ---
 
 ## System Architecture
