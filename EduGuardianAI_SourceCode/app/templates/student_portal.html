@@ -1,0 +1,826 @@
+{% extends "base.html" %}
+{% block title %}EduGuardian AI - Student Portal{% endblock %}
+
+{% block extra_styles %}
+<style>
+/* -- Student-specific styles -------------------- */
+
+/* Unit cards for student */
+.student-unit-card {
+  background: var(--mu-white);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius);
+  box-shadow: var(--mu-shadow);
+  padding: 0;
+  overflow: hidden;
+  transition: all var(--mu-ease);
+}
+.student-unit-card:hover { box-shadow: var(--mu-shadow-lg); transform: translateY(-2px); }
+.suc-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--mu-border);
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.suc-code { font-size: 1.05rem; font-weight: 700; color: var(--mu-text); }
+.suc-name { font-size: 0.78rem; color: var(--mu-muted); margin-top: 2px; }
+.suc-body { padding: 16px 18px; }
+.suc-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--mu-border);
+  background: var(--mu-bg);
+  display: flex; gap: 8px;
+}
+
+/* Progress overview card */
+.progress-card {
+  background: var(--mu-white);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius);
+  box-shadow: var(--mu-shadow);
+  padding: 18px;
+}
+
+/* Risk indicator large */
+.risk-hero {
+  text-align: center;
+  padding: 24px 20px;
+  border-radius: var(--mu-radius);
+  border: 2px solid var(--mu-border);
+  position: relative;
+  overflow: hidden;
+}
+.risk-hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+}
+.risk-hero.HIGH   { border-color: #FECACA; background: var(--mu-danger-bg);  } .risk-hero.HIGH::before   { background: var(--mu-danger);  }
+.risk-hero.MEDIUM { border-color: #FDE68A; background: var(--mu-warning-bg); } .risk-hero.MEDIUM::before { background: var(--mu-warning); }
+.risk-hero.LOW    { border-color: #A7F3D0; background: var(--mu-success-bg); } .risk-hero.LOW::before    { background: var(--mu-success); }
+.risk-hero.NONE   { border-color: var(--mu-border); background: var(--mu-bg); }
+.risk-hero-level  { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+.risk-hero.HIGH   .risk-hero-level { color: var(--mu-danger);  }
+.risk-hero.MEDIUM .risk-hero-level { color: var(--mu-warning); }
+.risk-hero.LOW    .risk-hero-level { color: var(--mu-success); }
+.risk-hero.NONE   .risk-hero-level { color: var(--mu-muted);   }
+.risk-hero-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mu-muted); font-weight: 600; margin-bottom: 8px; }
+
+/* Quiz submission grid */
+.quiz-submit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.quiz-input-wrap {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.quiz-input-wrap label { font-size: 0.72rem; font-weight: 600; color: var(--mu-muted); }
+.quiz-score-display {
+  padding: 8px;
+  border-radius: var(--mu-radius-sm);
+  border: 1px solid var(--mu-border);
+  background: var(--mu-bg);
+  text-align: center;
+}
+.quiz-score-display .score-val { font-size: 1rem; font-weight: 700; color: var(--mu-text); }
+.quiz-score-display .score-max { font-size: 0.68rem; color: var(--mu-muted); }
+.quiz-score-display.good  { background: var(--mu-success-bg); border-color: #A7F3D0; } .quiz-score-display.good  .score-val { color: var(--mu-success); }
+.quiz-score-display.warn  { background: var(--mu-warning-bg); border-color: #FDE68A; } .quiz-score-display.warn  .score-val { color: var(--mu-warning); }
+.quiz-score-display.bad   { background: var(--mu-danger-bg);  border-color: #FECACA; } .quiz-score-display.bad   .score-val { color: var(--mu-danger);  }
+.quiz-score-display.empty { border-style: dashed; }
+.quiz-score-display.empty .score-val { color: var(--mu-muted); font-size: 0.75rem; }
+
+/* Available units to enrol */
+.enrol-card {
+  background: var(--mu-white);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius);
+  box-shadow: var(--mu-shadow);
+  padding: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all var(--mu-ease);
+}
+.enrol-card:hover { border-color: var(--mu-red); }
+
+/* Tip box */
+.tip-box {
+  background: var(--mu-info-bg);
+  border: 1px solid #BFDBFE;
+  border-radius: var(--mu-radius-sm);
+  padding: 12px 14px;
+  font-size: 0.78rem; color: #1D4ED8;
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-bottom: 16px;
+}
+.tip-box i { flex-shrink: 0; margin-top: 2px; }
+
+/* Submit form */
+.submit-section-title {
+  font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--mu-muted);
+  margin-bottom: 10px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--mu-border);
+}
+</style>
+{% endblock %}
+
+{% block topbar %}
+<!-- ================== TOP BAR ================== -->
+<nav class="topbar">
+  <a class="topbar-brand" href="#">
+    <div class="brand-logo"><i class="fas fa-graduation-cap"></i></div>
+    <div class="brand-text">
+      <div class="brand-name">EduGuardian <strong style="color:var(--mu-red)">AI</strong></div>
+      <div class="brand-sub">Murdoch University · ICT304</div>
+    </div>
+  </a>
+
+  <div class="topbar-nav">
+    <button class="nav-link active" id="nav-overview" onclick="switchPage('page-overview', this)">
+      <i class="fas fa-house"></i> Overview
+    </button>
+    <button class="nav-link" id="nav-units" onclick="switchPage('page-units', this)">
+      <i class="fas fa-book-open"></i> My Units
+    </button>
+    <button class="nav-link" id="nav-submit" onclick="switchPage('page-submit', this)">
+      <i class="fas fa-pen-to-square"></i> Submit Grades
+    </button>
+    <button class="nav-link" id="nav-risk" onclick="switchPage('page-risk', this)">
+      <i class="fas fa-shield-halved"></i> My Risk
+    </button>
+    <button class="nav-link" id="nav-enrol" onclick="loadAvailableUnits();switchPage('page-enrol', this)">
+      <i class="fas fa-plus-circle"></i> Enrol
+    </button>
+  </div>
+
+  <div class="topbar-right">
+    <div class="topbar-pill" id="studentIdPill">
+      <i class="fas fa-id-card"></i>
+      <span id="studentIdDisplay">{{ user.student_id or '-' }}</span>
+    </div>
+    <div class="user-btn">
+      <div class="user-av" id="studentAvatar"></div>
+      <span id="studentName">{{ user.name }}</span>
+    </div>
+    <a href="/logout" class="logout-btn"><i class="fas fa-arrow-right-from-bracket"></i> Logout</a>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<!-- ==============================================
+     PAGE: OVERVIEW
+============================================== -->
+<div class="page active" id="page-overview">
+  <div class="section-header mb-20">
+    <div>
+      <div class="section-title">My Academic Overview</div>
+      <div class="section-sub">Your current performance and risk status across all enrolled units</div>
+    </div>
+  </div>
+
+  <!-- Quick stats -->
+  <div class="stat-grid" id="overviewStats" style="grid-template-columns:repeat(3,1fr);">
+    <div class="stat-card total">
+      <div class="stat-inner">
+        <div class="stat-ico total"><i class="fas fa-book-open"></i></div>
+        <div>
+          <div class="stat-num" id="ov-units">-</div>
+          <div class="stat-lbl">Enrolled Units</div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card low">
+      <div class="stat-inner">
+        <div class="stat-ico low"><i class="fas fa-pen-ruler"></i></div>
+        <div>
+          <div class="stat-num" id="ov-quizzes">-</div>
+          <div class="stat-lbl">Quizzes Submitted</div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card medium">
+      <div class="stat-inner">
+        <div class="stat-ico medium"><i class="fas fa-file-lines"></i></div>
+        <div>
+          <div class="stat-num" id="ov-assignments">-</div>
+          <div class="stat-lbl">Assignments Submitted</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unit cards with risk -->
+  <div id="overviewUnitCards">
+    <div class="empty-state" style="padding:48px;background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);">
+      <i class="fas fa-book-open"></i>
+      <h3>Loading your units…</h3>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE: MY UNITS
+============================================== -->
+<div class="page" id="page-units">
+  <div class="section-header mb-20">
+    <div>
+      <div class="section-title">My Enrolled Units</div>
+      <div class="section-sub">All units you're currently enrolled in</div>
+    </div>
+    <button class="btn btn-outline" onclick="loadAvailableUnits();switchPage('page-enrol', document.getElementById('nav-enrol'))">
+      <i class="fas fa-plus"></i> Enrol in More
+    </button>
+  </div>
+  <div id="myUnitsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;">
+    <div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:48px;">
+      <i class="fas fa-book-open"></i><h3>Loading…</h3>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE: SUBMIT GRADES
+============================================== -->
+<div class="page" id="page-submit">
+  <div class="section-header mb-20">
+    <div>
+      <div class="section-title">Submit Assessment Grades</div>
+      <div class="section-sub">Enter your quiz and assignment scores</div>
+    </div>
+    <select class="form-select" id="submitUnitSelect" onchange="loadSubmitForm()" style="width:220px;">
+      <option value="">Select unit…</option>
+    </select>
+  </div>
+
+  <div id="submitFormArea">
+    <div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:60px;">
+      <i class="fas fa-pen-to-square"></i>
+      <h3>Select a unit above</h3>
+      <p>Choose a unit to view and submit your assessment scores</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE: MY RISK
+============================================== -->
+<div class="page" id="page-risk">
+  <div class="section-header mb-20">
+    <div>
+      <div class="section-title">My Risk Status</div>
+      <div class="section-sub">AI-generated risk assessment for each of your units</div>
+    </div>
+    <select class="form-select" id="riskUnitSelect" onchange="loadRiskDetail()" style="width:220px;">
+      <option value="">Select unit…</option>
+    </select>
+  </div>
+
+  <div id="riskDetailArea">
+    <div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:60px;">
+      <i class="fas fa-shield-halved"></i>
+      <h3>Select a unit above</h3>
+      <p>Choose a unit to see your risk score and recommendations</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================
+     PAGE: ENROL
+============================================== -->
+<div class="page" id="page-enrol">
+  <div class="section-header mb-20">
+    <div>
+      <div class="section-title">Enrol in Units</div>
+      <div class="section-sub">Browse and join active units</div>
+    </div>
+    <button class="btn btn-outline" onclick="loadAvailableUnits()">
+      <i class="fas fa-rotate"></i> Refresh
+    </button>
+  </div>
+
+  <div id="availableUnitsArea">
+    <div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:60px;">
+      <i class="fas fa-rotate"></i><h3>Loading available units…</h3>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+/* ===================================================
+   EduGuardian AI - Student Portal JS
+==================================================== */
+
+let dashData = [];
+
+/* -- Init ---------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const name = '{{ user.name }}';
+  document.getElementById('studentName').textContent = name;
+  document.getElementById('studentAvatar').textContent = name.charAt(0).toUpperCase();
+  loadDashboard();
+});
+
+/* -- Load dashboard data -------------------------- */
+async function loadDashboard() {
+  try {
+    dashData = await api('/api/student/dashboard');
+    renderOverview();
+    populateStudentSelects();
+  } catch(e) {
+    showToast('Failed to load dashboard: ' + e.message, 'error');
+  }
+}
+
+function populateStudentSelects() {
+  ['submitUnitSelect','riskUnitSelect'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '<option value="">Select unit…</option>';
+    dashData.forEach(u => el.add(new Option(`${u.unit_code} - ${u.unit_name}`, u.unit_code)));
+  });
+}
+
+/* -- Overview ------------------------------------- */
+function renderOverview() {
+  document.getElementById('ov-units').textContent = dashData.length;
+  let totalQuizzes = 0, totalAssign = 0;
+  dashData.forEach(u => {
+    totalQuizzes += u.quizzes_submitted || 0;
+    if (u.assignment_1 != null) totalAssign++;
+    if (u.assignment_2 != null) totalAssign++;
+  });
+  document.getElementById('ov-quizzes').textContent     = totalQuizzes;
+  document.getElementById('ov-assignments').textContent = totalAssign;
+
+  const container = document.getElementById('overviewUnitCards');
+  if (!dashData.length) {
+    container.innerHTML = `<div class="empty-state" style="padding:48px;background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);">
+      <i class="fas fa-book-open"></i><h3>No units yet</h3><p>Enrol in a unit to get started</p>
+      <button class="btn btn-primary" style="margin-top:14px;" onclick="loadAvailableUnits();switchPage('page-enrol',document.getElementById('nav-enrol'))"><i class="fas fa-plus"></i> Enrol Now</button>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;';
+  dashData.forEach(u => {
+    const r = u.risk || {};
+    const rl = r.risk_level || 'NONE';
+    const qAvg = r.quiz_avg_pct != null ? r.quiz_avg_pct.toFixed(1) + '%' : '-';
+    const trend = r.trend_direction || '-';
+    const card = document.createElement('div');
+    card.className = 'student-unit-card';
+    card.innerHTML = `
+      <div class="suc-header">
+        <div>
+          <div class="suc-code">${u.unit_code}</div>
+          <div class="suc-name">${u.unit_name} · ${u.trimester||''}</div>
+        </div>
+        ${riskBadge(r.risk_level)}
+      </div>
+      <div class="suc-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+          <div style="text-align:center;padding:10px;background:var(--mu-bg);border-radius:8px;">
+            <div style="font-size:1.1rem;font-weight:700;color:var(--mu-text);">${u.quizzes_submitted||0}/${u.quiz_count||10}</div>
+            <div style="font-size:0.68rem;color:var(--mu-muted);text-transform:uppercase;letter-spacing:.04em;">Quizzes</div>
+          </div>
+          <div style="text-align:center;padding:10px;background:var(--mu-bg);border-radius:8px;">
+            <div style="font-size:1.1rem;font-weight:700;color:var(--mu-text);">${qAvg}</div>
+            <div style="font-size:0.68rem;color:var(--mu-muted);text-transform:uppercase;letter-spacing:.04em;">Quiz Avg</div>
+          </div>
+          <div style="text-align:center;padding:10px;background:var(--mu-bg);border-radius:8px;">
+            <div style="font-size:1.1rem;font-weight:700;color:var(--mu-text);">${(u.assignment_1!=null?1:0)+(u.assignment_2!=null?1:0)}/2</div>
+            <div style="font-size:0.68rem;color:var(--mu-muted);text-transform:uppercase;letter-spacing:.04em;">Assigns</div>
+          </div>
+        </div>
+        <div class="info-row"><span class="info-label">Trend</span><span class="info-value">${trendIcon(trend)}</span></div>
+        ${r.alert ? `<div style="margin-top:10px;padding:8px 10px;background:var(--mu-danger-bg);border:1px solid #FECACA;border-radius:6px;font-size:0.76rem;color:#B91C1C;"><i class="fas fa-triangle-exclamation"></i> ${r.alert}</div>` : ''}
+      </div>
+      <div class="suc-footer">
+        <button class="btn btn-primary btn-sm" onclick="goToSubmit('${u.unit_code}')"><i class="fas fa-pen-to-square"></i> Submit</button>
+        <button class="btn btn-outline btn-sm" onclick="goToRisk('${u.unit_code}')"><i class="fas fa-shield-halved"></i> Risk Detail</button>
+        <button class="btn btn-outline btn-sm" onclick="downloadMyReport('${u.unit_code}')"><i class="fas fa-file-pdf"></i></button>
+      </div>`;
+    grid.appendChild(card);
+  });
+  container.appendChild(grid);
+
+  // Also render my units grid
+  renderMyUnitsGrid();
+}
+
+function renderMyUnitsGrid() {
+  const grid = document.getElementById('myUnitsGrid');
+  if (!dashData.length) {
+    grid.innerHTML = `<div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:48px;grid-column:1/-1;">
+      <i class="fas fa-book-open"></i><h3>Not enrolled in any units</h3>
+      <button class="btn btn-primary" style="margin-top:14px;" onclick="loadAvailableUnits();switchPage('page-enrol',document.getElementById('nav-enrol'))"><i class="fas fa-plus"></i> Enrol Now</button>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = '';
+  dashData.forEach(u => {
+    const r = u.risk || {};
+    const card = document.createElement('div');
+    card.className = 'student-unit-card';
+    card.innerHTML = `
+      <div class="suc-header">
+        <div>
+          <div class="suc-code">${u.unit_code}</div>
+          <div class="suc-name">${u.unit_name}</div>
+          <div style="font-size:0.72rem;color:var(--mu-muted);">${u.trimester||''}</div>
+        </div>
+        ${riskBadge(r.risk_level)}
+      </div>
+      <div class="suc-body">
+        <div class="info-row"><span class="info-label">Quizzes</span><span class="info-value">${u.quizzes_submitted||0} / ${u.quiz_count||10} submitted</span></div>
+        <div class="info-row"><span class="info-label">Quiz Weight</span><span class="info-value">${u.quiz_weight_pct||20}%</span></div>
+        <div class="info-row"><span class="info-label">Assignment 1</span><span class="info-value">${u.assignment_1 != null ? u.assignment_1 + ' / '+u.a1_max_marks : 'Not submitted'}</span></div>
+        <div class="info-row"><span class="info-label">Assignment 2</span><span class="info-value">${u.assignment_2 != null ? u.assignment_2 + ' / '+u.a2_max_marks : 'Not submitted'}</span></div>
+        <div class="info-row"><span class="info-label">Pass Mark</span><span class="info-value">${u.pass_mark_pct||50}%</span></div>
+        <div class="progress mt-16" style="margin-bottom:4px;">
+          <div class="progress-fill ${getProgressColor(u)}" style="width:${getProgressPct(u)}%;"></div>
+        </div>
+        <div style="font-size:0.70rem;color:var(--mu-muted);">Progress: ${getProgressPct(u)}% of assessments submitted</div>
+      </div>
+      <div class="suc-footer">
+        <button class="btn btn-primary btn-sm" onclick="goToSubmit('${u.unit_code}')"><i class="fas fa-pen-to-square"></i> Submit</button>
+        <button class="btn btn-outline btn-sm" onclick="goToRisk('${u.unit_code}')"><i class="fas fa-shield-halved"></i> Risk</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function getProgressPct(u) {
+  const total = (u.quiz_count||10) + 2;
+  const done  = (u.quizzes_submitted||0) + (u.assignment_1!=null?1:0) + (u.assignment_2!=null?1:0);
+  return Math.round((done/total)*100);
+}
+function getProgressColor(u) {
+  const pct = getProgressPct(u);
+  return pct >= 70 ? 'green' : pct >= 40 ? 'blue' : 'amber';
+}
+
+/* -- Navigate shortcuts --------------------------- */
+function goToSubmit(unitCode) {
+  document.getElementById('submitUnitSelect').value = unitCode;
+  switchPage('page-submit', document.getElementById('nav-submit'));
+  loadSubmitForm();
+}
+function goToRisk(unitCode) {
+  document.getElementById('riskUnitSelect').value = unitCode;
+  switchPage('page-risk', document.getElementById('nav-risk'));
+  loadRiskDetail();
+}
+function downloadRiskPDF() {
+    const unitCode = document.getElementById('riskUnitSelect').value;
+    if (!unitCode) {
+        showToast('Please select a unit first.', 'warning');
+        return;
+    }
+    downloadMyReport(unitCode);
+}
+
+function downloadMyReport(unitCode) {
+    if (!unitCode) {
+        showToast('No unit selected.', 'warning');
+        return;
+    }
+    // Use a hidden <a> tag so the browser keeps the session and stays on the page
+    const a = document.createElement('a');
+    a.href = `/api/student/my-report-pdf/${unitCode}`;
+    a.download = `EduGuardian_MyReport_${unitCode}.pdf`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 1000);
+    showToast('Preparing your PDF report…', 'info');
+}
+
+/* -- Submit Form ---------------------------------- */
+async function loadSubmitForm() {
+  const unitCode = document.getElementById('submitUnitSelect').value;
+  const area = document.getElementById('submitFormArea');
+  if (!unitCode) {
+    area.innerHTML = `<div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:60px;"><i class="fas fa-pen-to-square"></i><h3>Select a unit above</h3></div>`;
+    return;
+  }
+
+  const unit = dashData.find(u => u.unit_code === unitCode);
+  if (!unit) return;
+
+  const qCount  = unit.quiz_count || 10;
+  const qMax    = unit.quiz_max_marks || 20;
+  const a1Max   = unit.a1_max_marks || 100;
+  const a2Max   = unit.a2_max_marks || 100;
+  const scores  = unit.quiz_scores || [];
+  const a1score = unit.assignment_1;
+  const a2score = unit.assignment_2;
+  const nextQuiz= scores.length + 1;
+
+  // Build quiz display
+  let quizHTML = '';
+  for (let i = 1; i <= qCount; i++) {
+    const submitted = i <= scores.length;
+    const sc = submitted ? scores[i-1] : null;
+    const pct = submitted ? (sc / qMax) * 100 : 0;
+    const cls = !submitted ? 'empty' : pct >= 70 ? 'good' : pct >= 50 ? 'warn' : 'bad';
+    quizHTML += `<div class="quiz-score-display ${cls}">
+      <div class="score-val">${submitted ? sc : (i === nextQuiz ? '?' : '-')}</div>
+      <div class="score-max">Q${i} / ${qMax}</div>
+    </div>`;
+  }
+
+  area.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start;">
+      <!-- Left: Current scores -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon blue"><i class="fas fa-chart-line"></i></div>
+          <div><div class="card-title">Current Submissions - ${unitCode}</div><div class="card-sub">${scores.length}/${qCount} quizzes · A1: ${a1score!=null?a1score:'-'} · A2: ${a2score!=null?a2score:'-'}</div></div>
+        </div>
+        <div class="card-body">
+          <div class="submit-section-title">Quiz Scores</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-bottom:20px;">
+            ${quizHTML}
+          </div>
+          <div class="submit-section-title">Assignment Scores</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="quiz-score-display ${a1score!=null?((a1score/a1Max*100>=70?'good':a1score/a1Max*100>=50?'warn':'bad')):'empty'}">
+              <div class="score-val">${a1score != null ? a1score : '-'}</div>
+              <div class="score-max">Assignment 1 / ${a1Max}</div>
+            </div>
+            <div class="quiz-score-display ${a2score!=null?((a2score/a2Max*100>=70?'good':a2score/a2Max*100>=50?'warn':'bad')):'empty'}">
+              <div class="score-val">${a2score != null ? a2score : '-'}</div>
+              <div class="score-max">Assignment 2 / ${a2Max}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Submit form -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        ${nextQuiz <= qCount ? `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-pen"></i></div>
+            <div><div class="card-title">Submit Quiz ${nextQuiz}</div><div class="card-sub">Max: ${qMax} marks</div></div>
+          </div>
+          <div class="card-body">
+            <div class="tip-box"><i class="fas fa-circle-info"></i><span>Enter your score for Quiz ${nextQuiz} out of ${qMax}. You can only submit each quiz once.</span></div>
+            <div class="form-group">
+              <label class="form-label">Score <span class="req">*</span></label>
+              <input type="number" class="form-input" id="quizScoreInput" min="0" max="${qMax}" step="0.5" placeholder="0 – ${qMax}"/>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="submitQuiz('${unitCode}', ${nextQuiz}, ${qMax})">
+              <i class="fas fa-paper-plane"></i> Submit Quiz ${nextQuiz}
+            </button>
+          </div>
+        </div>` : `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green"><i class="fas fa-circle-check"></i></div>
+            <div><div class="card-title">All Quizzes Submitted</div><div class="card-sub">All ${qCount} quizzes completed</div></div>
+          </div>
+          <div class="card-body"><p class="text-muted text-sm">You have submitted all quiz scores for this unit.</p></div>
+        </div>`}
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon amber"><i class="fas fa-file-lines"></i></div>
+            <div><div class="card-title">Submit Assignment</div><div class="card-sub">Assignments 1 &amp; 2</div></div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Assignment</label>
+              <select class="form-select" id="assignSelect">
+                ${a1score==null?`<option value="1">Assignment 1 (out of ${a1Max})</option>`:''}
+                ${a2score==null?`<option value="2">Assignment 2 (out of ${a2Max})</option>`:''}
+                ${a1score!=null&&a2score!=null?'<option value="">Both submitted</option>':''}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Score <span class="req">*</span></label>
+              <input type="number" class="form-input" id="assignScoreInput" min="0" max="${Math.max(a1Max,a2Max)}" step="0.5" placeholder="Enter score"
+                ${a1score!=null&&a2score!=null?'disabled':''}/>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="submitAssignment('${unitCode}', ${a1Max}, ${a2Max})"
+              ${a1score!=null&&a2score!=null?'disabled':''}>
+              <i class="fas fa-paper-plane"></i> Submit Assignment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function submitQuiz(unitCode, quizNum, maxMarks) {
+  const raw = document.getElementById('quizScoreInput').value.trim();
+  if (raw === '') { showToast('Please enter a score', 'warning'); return; }
+  const score = parseFloat(raw);
+  if (isNaN(score) || score < 0 || score > maxMarks) {
+    showToast(`Score must be between 0 and ${maxMarks}`, 'warning'); return;
+  }
+  try {
+    await api(`/api/student/unit/${unitCode}/grades`, {
+      method: 'POST',
+      body: JSON.stringify({ quizzes: [score] })
+    });
+    showToast(`Quiz ${quizNum} submitted: ${score}/${maxMarks}`, 'success');
+    await loadDashboard();
+    loadSubmitForm();
+  } catch(e) { showToast('Submission failed: ' + e.message, 'error'); }
+}
+
+async function submitAssignment(unitCode, a1Max, a2Max) {
+  const num = parseInt(document.getElementById('assignSelect').value);
+  const raw = document.getElementById('assignScoreInput').value.trim();
+  if (!num) { showToast('Please select an assignment', 'warning'); return; }
+  if (raw === '') { showToast('Please enter a score', 'warning'); return; }
+  const score  = parseFloat(raw);
+  const maxVal = num === 1 ? a1Max : a2Max;
+  if (isNaN(score) || score < 0 || score > maxVal) {
+    showToast(`Score must be between 0 and ${maxVal}`, 'warning'); return;
+  }
+  try {
+    await api(`/api/student/unit/${unitCode}/grades`, {
+      method: 'POST',
+      body: JSON.stringify(num === 1 ? { assignment_1: score } : { assignment_2: score })
+    });
+    showToast(`Assignment ${num} submitted: ${score}/${maxVal}`, 'success');
+    await loadDashboard();
+    loadSubmitForm();
+  } catch(e) { showToast('Submission failed: ' + e.message, 'error'); }
+}
+
+/* -- Risk Detail ----------------------------------- */
+function loadRiskDetail() {
+  const unitCode = document.getElementById('riskUnitSelect').value;
+  const area = document.getElementById('riskDetailArea');
+  if (!unitCode) {
+    area.innerHTML = `<div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:60px;"><i class="fas fa-shield-halved"></i><h3>Select a unit above</h3></div>`;
+    return;
+  }
+
+  const unit = dashData.find(u => u.unit_code === unitCode);
+  if (!unit) return;
+  const r = unit.risk;
+
+  if (!r) {
+    area.innerHTML = `
+      <div class="card">
+        <div class="card-header"><div class="card-icon"><i class="fas fa-clock"></i></div>
+          <div><div class="card-title">Risk Not Yet Calculated</div><div class="card-sub">${unitCode}</div></div>
+        </div>
+        <div class="card-body">
+          <div class="tip-box"><i class="fas fa-circle-info"></i><span>Your risk score will be calculated after your staff member runs the AI model. Make sure you've submitted your assessment scores first.</span></div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const rl = r.risk_level || 'NONE';
+  const riskPct = r.combined_risk_score != null ? Math.round(r.combined_risk_score * 100) : null;
+  const dotLeft = riskPct != null ? Math.min(Math.max(riskPct, 4), 96) : 50;
+
+  const tips = {
+    HIGH:   ['Attend all remaining classes and labs', 'Contact your lecturer immediately', 'Visit the student support centre', 'Form a study group with classmates', 'Review all missed assessments'],
+    MEDIUM: ['Increase study hours per week', 'Revise quiz topics you struggled with', 'Submit all outstanding assessments', 'Ask your tutor for feedback'],
+    LOW:    ['Keep up the good work!', 'Stay consistent with your study routine', 'Help classmates who may be struggling'],
+  };
+  const tipList = (tips[rl] || ['Consult your lecturer for personalised advice']).map(t => `<li style="margin-bottom:6px;">${t}</li>`).join('');
+
+  area.innerHTML = `
+    <div style="display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;">
+      <!-- Left col -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="risk-hero ${rl}">
+          <div class="risk-hero-lbl">Risk Level</div>
+          <div class="risk-hero-level">${rl === 'NONE' ? 'Pending' : rl}</div>
+          ${riskPct != null ? `<div style="margin-top:8px;font-size:0.78rem;color:var(--mu-muted);">Combined score: ${riskPct}%</div>` : ''}
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue"><i class="fas fa-chart-line"></i></div>
+            <div><div class="card-title">Key Metrics</div></div>
+          </div>
+          <div class="card-body">
+            <div class="info-row"><span class="info-label">Quiz Average</span><span class="info-value">${r.quiz_avg_pct != null ? r.quiz_avg_pct.toFixed(1)+'%' : '-'}</span></div>
+            <div class="info-row"><span class="info-label">Projected Average</span><span class="info-value">${r.projected_avg_pct != null ? r.projected_avg_pct.toFixed(1)+'%' : '-'}</span></div>
+            <div class="info-row"><span class="info-label">Quiz Trend</span><span class="info-value">${trendIcon(r.trend_direction)}</span></div>
+            <div class="info-row"><span class="info-label">ML Probability</span><span class="info-value">${r.ml_probability != null ? (r.ml_probability*100).toFixed(1)+'%' : '-'}</span></div>
+            <div class="info-row"><span class="info-label">AI Model Used</span><span class="info-value" style="font-size:0.74rem;">${r.selected_model||'-'}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right col -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        ${r.alert ? `
+        <div style="padding:14px 16px;background:var(--mu-danger-bg);border:1px solid #FECACA;border-radius:var(--mu-radius-sm);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <i class="fas fa-triangle-exclamation" style="color:var(--mu-danger);"></i>
+            <strong style="font-size:0.84rem;color:#B91C1C;">Intervention Alert</strong>
+          </div>
+          <p style="font-size:0.8rem;color:#7F1D1D;">${r.alert}</p>
+        </div>` : ''}
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon ${rl==='LOW'?'green':rl==='MEDIUM'?'amber':''}"><i class="fas fa-lightbulb"></i></div>
+            <div><div class="card-title">Recommendations</div><div class="card-sub">Personalised for your ${rl} risk status</div></div>
+          </div>
+          <div class="card-body">
+            <ul style="list-style:none;padding:0;">${tipList}</ul>
+          </div>
+        </div>
+
+        ${riskPct != null ? `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue"><i class="fas fa-gauge"></i></div>
+            <div><div class="card-title">Risk Gauge</div></div>
+          </div>
+          <div class="card-body">
+            <div style="margin:8px 0 16px;">
+              <div class="risk-meter">
+                <div class="risk-meter-bar"><div class="risk-meter-dot" style="left:${dotLeft}%;"></div></div>
+                <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.7rem;color:var(--mu-muted);">
+                  <span>Low Risk (0%)</span><span>High Risk (100%)</span>
+                </div>
+              </div>
+            </div>
+            <div class="progress" style="height:10px;margin-bottom:6px;">
+              <div class="progress-fill ${riskPct>=70?'red':riskPct>=40?'amber':'green'}" style="width:${riskPct}%;"></div>
+            </div>
+            <div style="font-size:0.74rem;color:var(--mu-muted);">Combined Risk Score: <strong>${riskPct}%</strong></div>
+          </div>
+        </div>` : ''}
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon"><i class="fas fa-file-pdf"></i></div>
+            <div><div class="card-title">Download Report</div><div class="card-sub">Full risk assessment PDF</div></div>
+          </div>
+          <div class="card-body">
+            <button class="btn btn-primary" style="width:100%;" 
+              onclick="downloadMyReport('${unitCode}')">
+              <i class="fas fa-download"></i> Download My Risk Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* -- Enrol ---------------------------------------- */
+async function loadAvailableUnits() {
+  const area = document.getElementById('availableUnitsArea');
+  area.innerHTML = `<div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:60px;"><i class="fas fa-rotate fa-spin"></i><h3>Loading…</h3></div>`;
+  try {
+    const units = await api('/api/available-units');
+    if (!units.length) {
+      area.innerHTML = `<div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:60px;">
+        <i class="fas fa-circle-check"></i><h3>All available units enrolled</h3><p>You're enrolled in all currently active units</p>
+      </div>`;
+      return;
+    }
+    area.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+    units.forEach(u => {
+      const card = document.createElement('div');
+      card.className = 'enrol-card';
+      card.innerHTML = `
+        <div>
+          <div style="font-size:0.94rem;font-weight:700;color:var(--mu-text);">${u.unit_code} - ${u.unit_name}</div>
+          <div style="font-size:0.76rem;color:var(--mu-muted);margin-top:3px;">${u.trimester||''} · ${u.quiz_count||10} quizzes · Pass mark: ${u.pass_mark_pct||50}%</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="enrolUnit('${u.unit_code}', this)"><i class="fas fa-plus"></i> Enrol</button>`;
+      grid.appendChild(card);
+    });
+    area.appendChild(grid);
+  } catch(e) {
+    area.innerHTML = `<div class="empty-state" style="background:var(--mu-white);border-radius:var(--mu-radius);border:1px solid var(--mu-border);padding:60px;"><i class="fas fa-circle-xmark"></i><h3>Failed to load units</h3><p>${e.message}</p></div>`;
+  }
+}
+
+async function enrolUnit(code, btn) {
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enrolling…';
+  try {
+    await api(`/api/enrol/${code}`, { method:'POST' });
+    showToast(`Enrolled in ${code}!`, 'success');
+    btn.innerHTML = '<i class="fas fa-check"></i> Enrolled';
+    btn.className = 'btn btn-success btn-sm';
+    await loadDashboard();
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plus"></i> Enrol';
+    showToast('Enrol failed: ' + e.message, 'error');
+  }
+}
+</script>
+{% endblock %}

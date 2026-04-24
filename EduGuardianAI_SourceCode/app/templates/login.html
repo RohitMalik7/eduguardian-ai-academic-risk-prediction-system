@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduGuardian AI · Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --coral:        #C8102E;
+  --coral-dark:   #9E0C24;
+  --coral-light:  #D94060;
+  --coral-pale:   #F5E0E4;
+  --bg-warm:      #F4F6F9;
+  --text-dark:    #002244;
+  --text-mid:     #003865;
+  --text-light:   #5A7FA0;
+  --white:        #FFFFFF;
+  --input-border: rgba(0,56,101,0.2);
+  --shadow-card:  0 32px 80px rgba(0,56,101,0.18), 0 4px 24px rgba(0,0,0,0.08);
+  --radius-card:  28px;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-warm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+body::before {
+  content:'';
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,16,46,0.10), transparent 70%);
+  top: -200px; left: -200px;
+  pointer-events: none;
+}
+body::after {
+  content:'';
+  position: fixed;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,56,101,0.10), transparent 70%);
+  bottom: -150px; right: -150px;
+  pointer-events: none;
+}
+
+/* --- Card --------------------------------------------------- */
+.card {
+  display: flex;
+  width: min(940px, 96vw);
+  min-height: 560px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  animation: cardIn 0.7s cubic-bezier(.22,1,.36,1) both;
+  background: var(--white);
+}
+@keyframes cardIn {
+  from { opacity:0; transform: translateY(36px) scale(0.97); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+
+/* --- LEFT PANEL ------------------------------------------- */
+.panel-left {
+  flex: 1.1;
+  background: linear-gradient(145deg, #003865 0%, #002244 40%, #C8102E 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3.5rem 3rem;
+  overflow: hidden;
+  color: var(--white);
+}
+
+.panel-left .circle-1 {
+  position: absolute;
+  width: 380px; height: 380px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.12);
+  top: -120px; right: -100px;
+}
+.panel-left .circle-2 {
+  position: absolute;
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.09);
+  bottom: -80px; left: -80px;
+}
+.panel-left .circle-3 {
+  position: absolute;
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  top: 55%; right: 5%;
+}
+
+.panel-left-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Slideshow -------------------------------------------- */
+.slideshow {
+  position: relative;
+  min-height: 380px;
+}
+
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  pointer-events: none;
+}
+.slide.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  position: absolute;
+}
+
+.uni-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.95);
+  margin-bottom: 2rem;
+  width: fit-content;
+}
+
+/* SVG icon inside badge */
+.badge-icon {
+  width: 14px; height: 14px;
+  fill: rgba(255,255,255,0.9);
+  flex-shrink: 0;
+}
+
+.slide h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1.22;
+  color: var(--white);
+  margin-bottom: 1.2rem;
+}
+.slide h1 em {
+  font-style: italic;
+  color: rgba(255,255,255,0.82);
+}
+
+.left-divider {
+  width: 48px; height: 3px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 2px;
+  margin: 1.4rem 0;
+}
+
+.slide p.tagline {
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.75;
+  color: rgba(255,255,255,0.82);
+  margin-bottom: 2rem;
+  max-width: 340px;
+}
+
+.stats-strip {
+  display: flex;
+  gap: 2rem;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+}
+.stat-item span:first-child {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--white);
+}
+.stat-item span:last-child {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Slide indicator dots - vertical, right side */
+.slide-dots {
+  position: absolute;
+  right: -1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s, height 0.3s;
+}
+.dot.active {
+  background: rgba(255,255,255,0.95);
+  height: 22px;
+  border-radius: 4px;
+  transform: none;
+}
+
+/* --- RIGHT PANEL ------------------------------------------ */
+.panel-right {
+  flex: 1;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 3rem;
+  position: relative;
+}
+
+/* --- Login Form -------------------------------------------- */
+.login-form { width: 100%; max-width: 320px; }
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.form-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1.2rem;
+}
+.logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--coral) 0%, var(--coral-dark) 100%);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(232,113,74,0.3);
+}
+.logo-icon svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.logo-text {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  letter-spacing: -0.01em;
+}
+.logo-text span { color: var(--coral); }
+
+.form-header h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.3rem;
+}
+.form-header p {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  font-weight: 400;
+}
+
+/* Role tabs - only Student & Staff */
+.role-pills {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.6rem;
+  background: var(--coral-pale);
+  border-radius: 12px;
+  padding: 4px;
+}
+.pill {
+  flex: 1;
+  padding: 7px 0;
+  text-align: center;
+  border-radius: 9px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-mid);
+  transition: all 0.22s;
+}
+.pill.active {
+  background: var(--white);
+  color: var(--coral-dark);
+  box-shadow: 0 2px 8px rgba(200,80,40,0.15);
+}
+.pill:hover:not(.active) { color: var(--coral); }
+
+/* Input group */
+.input-group {
+  position: relative;
+  margin-bottom: 0.9rem;
+}
+.input-icon {
+  position: absolute;
+  left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--text-light);
+  pointer-events: none;
+  transition: color 0.2s;
+  display: flex; align-items: center;
+}
+.input-icon svg { width: 15px; height: 15px; }
+.input-group input {
+  width: 100%;
+  padding: 0.72rem 1rem 0.72rem 2.6rem;
+  background: var(--bg-warm);
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.87rem;
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.input-group input::placeholder { color: var(--text-light); }
+.input-group input:focus {
+  border-color: var(--coral);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(200,16,46,0.14);
+}
+
+/* Form row */
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.4rem;
+}
+.remember {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.77rem; color: var(--text-mid); cursor: pointer;
+}
+.remember input[type=checkbox] { accent-color: var(--coral); width:13px; height:13px; }
+.btn-link {
+  font-size: 0.77rem;
+  color: var(--coral);
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  transition: color 0.2s;
+}
+.btn-link:hover { color: var(--coral-dark); text-decoration: underline; }
+
+/* Login button */
+.btn-login {
+  width: 100%;
+  padding: 0.82rem;
+  background: linear-gradient(135deg, var(--coral) 0%, var(--coral-dark) 100%);
+  color: #fff;
+  border: none; border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem; font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(200,16,46,0.35);
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-login:hover { opacity:0.9; transform:translateY(-2px); box-shadow: 0 10px 30px rgba(200,16,46,0.45); }
+.btn-login:active { transform:translateY(0); }
+.btn-login .spinner {
+  display: none;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-login.loading .btn-text { display: none; }
+.btn-login.loading .spinner { display: block; }
+
+/* Error */
+.error-msg {
+  display: none;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.77rem;
+  color: #dc2626;
+  text-align: center;
+  margin-bottom: 0.9rem;
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97);
+}
+.error-msg.show { display: block; }
+@keyframes shake {
+  0%,100%{ transform:translateX(0); }
+  20%    { transform:translateX(-6px); }
+  40%    { transform:translateX(6px); }
+  60%    { transform:translateX(-4px); }
+  80%    { transform:translateX(4px); }
+}
+
+/* Footer note */
+.form-footer {
+  text-align: center;
+  margin-top: 1.4rem;
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+/* --- DIALOG / MODAL --------------------------------------- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,34,68,0.45);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  animation: fadeOverlay 0.25s ease;
+}
+.modal-overlay.open { display: flex; }
+@keyframes fadeOverlay {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+
+.modal-box {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 2.2rem 2.5rem 2rem;
+  width: min(460px, 92vw);
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0,34,68,0.22);
+  animation: modalIn 0.3s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes modalIn {
+  from { opacity:0; transform: translateY(30px) scale(0.96); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px; right: 16px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--coral-pale);
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, transform 0.15s;
+  color: var(--coral-dark);
+}
+.modal-close:hover { background: var(--coral); color: #fff; transform: scale(1.08); }
+.modal-close svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
+
+.modal-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--coral), var(--coral-dark));
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 6px 18px rgba(232,113,74,0.3);
+}
+.modal-icon svg { width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.4rem;
+}
+.modal-sub {
+  font-size: 0.82rem;
+  color: var(--text-light);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.modal-placeholder {
+  background: var(--bg-warm);
+  border: 1.5px dashed var(--input-border);
+  border-radius: 12px;
+  padding: 1.4rem;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.8rem;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* --- Responsive ------------------------------------------- */
+@media (max-width: 680px) {
+  .panel-left { display: none; }
+  .card { min-height: auto; }
+  .panel-right { padding: 2.5rem 1.8rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================== MODAL: Login Help -->
+<div class="modal-overlay" id="modalLoginHelp">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modalLoginHelp')" aria-label="Close">
+      <svg viewBox="0 0 14 14"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
+    </button>
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div class="modal-title">Login Help</div>
+    <div class="modal-sub">Find your login credentials for accessing the portal.</div>
+    <div class="modal-placeholder" style="text-align:left;font-style:normal;color:#003865;max-height:210px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(200,16,46,0.4) transparent;">
+
+      <b>About This System:</b><br>
+      EduGuardian AI is the AI Academic Risk Prediction &amp; Early Intervention System developed for ICT304 at Murdoch University. It uses a hybrid rule-based and machine learning engine to detect at-risk students early based on ongoing quiz and assignment performance.
+
+      <br><br>
+
+      <b>Staff Account (1 account):</b><br>
+      Email:&nbsp;&nbsp;<code style="background:rgba(200,16,46,0.10);padding:2px 7px;border-radius:4px;font-size:0.82rem;">staff@murdoch.edu.au</code><br>
+      Password:&nbsp;<code style="background:rgba(200,16,46,0.10);padding:2px 7px;border-radius:4px;font-size:0.82rem;">staff123</code><br>
+      <span style="font-size:0.77rem;color:#5A7FA0;">Use the Staff Portal to manage units, run the AI risk model, and view intervention alerts for at-risk students.</span>
+
+      <br><br>
+
+      <b>Student Demo Accounts (20 accounts &mdash; S1000 to S1019):</b><br>
+      Email format:&nbsp;<code style="background:rgba(200,16,46,0.10);padding:2px 7px;border-radius:4px;font-size:0.82rem;">s[ID]@student.murdoch.edu.au</code><br>
+      Example:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code style="background:rgba(200,16,46,0.10);padding:2px 7px;border-radius:4px;font-size:0.82rem;">s1000@student.murdoch.edu.au</code><br>
+      Password:&nbsp;&nbsp;&nbsp;&nbsp;<code style="background:rgba(200,16,46,0.10);padding:2px 7px;border-radius:4px;font-size:0.82rem;">student123</code><br>
+      <span style="font-size:0.77rem;color:#5A7FA0;">All 20 students (S1000–S1019) share the same password. They are pre-enrolled in ICT304 to allow demo grade submission and AI risk prediction testing.</span>
+        <br><br>
+
+          <b>System Demo Video:</b><br>
+          <a href="/static/demo/EduGuardian_Demo.mp4" target="_blank"
+            style="
+              display:inline-block;
+              margin-top:6px;
+              background:linear-gradient(135deg,#C8102E,#9E0C24);
+              color:#fff;
+              padding:6px 12px;
+              border-radius:6px;
+              font-size:0.8rem;
+              text-decoration:none;
+              font-weight:600;
+            ">
+            Watch Demo Video
+          </a>
+
+          <span style="font-size:0.77rem;color:#5A7FA0;display:block;margin-top:6px;">
+          Click to open the system demonstration video in a new tab.
+          </span>
+
+        </div>
+  </div>
+</div>
+
+<!-- ============================================== MODAL: IT Support -->
+<div class="modal-overlay" id="modalITSupport">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modalITSupport')" aria-label="Close">
+      <svg viewBox="0 0 14 14"><line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/></svg>
+    </button>
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div class="modal-title">Contact IT Support</div>
+    <div class="modal-sub">Reach out to our technical team for any portal access issues or system support.</div>
+    <div class="modal-placeholder" style="text-align:left;font-style:normal;color:#003865;max-height:210px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(200,16,46,0.4) transparent;">
+
+      <b>Project Team &mdash; EduGuardian AI &middot; ICT304 &middot; Murdoch University</b>
+
+      <br><br>
+
+      <b>Rohit Kumar Malik</b><br>
+      Email: <a href="mailto:35363998@student.murdoch.edu.au" style="color:var(--coral);text-decoration:none;font-weight:600;">35363998@student.murdoch.edu.au</a>
+
+      <br><br>
+
+      <b>Izaan Shumaiz</b><br>
+      Email: <a href="mailto:34984006@student.murdoch.edu.au" style="color:var(--coral);text-decoration:none;font-weight:600;">34984006@student.murdoch.edu.au</a>
+
+      <br><br>
+
+      <b>Mohamed Sinan</b><br>
+      Email: <a href="mailto:35078074@student.murdoch.edu.au" style="color:var(--coral);text-decoration:none;font-weight:600;">35078074@student.murdoch.edu.au</a>
+
+      <br><br>
+
+      <span style="font-size:0.77rem;color:#5A7FA0;">For any issues related to login access, dashboard loading, or model execution, click an email above to contact the team directly.</span>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================== CARD -->
+<div class="card">
+
+  <!-- -- LEFT PANEL ---------------------------------------- -->
+  <div class="panel-left">
+    <div class="circle-1"></div>
+    <div class="circle-2"></div>
+    <div class="circle-3"></div>
+
+    <div class="panel-left-content">
+      <div class="slideshow" id="slideshow">
+
+        <!-- SLIDE 1 -->
+        <div class="slide active">
+          <div class="uni-badge">
+            <svg class="badge-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3L2 8l10 5 10-5-10-5zM2 13l10 5 10-5M2 18l10 5 10-5"/>
+            </svg>
+            Murdoch University · ICT304
+          </div>
+          <h1>Secure<br/><em>Portal</em><br/>Access.</h1>
+          <div class="left-divider"></div>
+          <p class="tagline">
+            Welcome to EduGuardian AI - the early academic risk prediction and intervention platform built for ICT304 at Murdoch University.
+          </p>
+          <div class="stats-strip">
+            <div class="stat-item"><span>2</span><span>Portal Roles</span></div>
+            <div class="stat-item"><span>8</span><span>AI Sub-Systems</span></div>
+            <div class="stat-item"><span>20</span><span>Demo Students</span></div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2 - placeholder, add content later -->
+        <div class="slide">
+          <div class="uni-badge">
+            <svg class="badge-icon" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg>
+            Staff Portal
+          </div>
+          <h1>Monitor.<br/><em>Predict.</em><br/>Intervene.</h1>
+          <div class="left-divider"></div>
+          <p class="tagline">
+            Log in as Staff to manage units, configure assessment weights, view the full student cohort, and run the hybrid AI risk model to identify at-risk students and generate intervention alerts.
+          </p>
+          <div class="stats-strip">
+            <div class="stat-item"><span>3</span><span>Risk Levels</span></div>
+            <div class="stat-item"><span>Hybrid</span><span>AI Engine</span></div>
+            <div class="stat-item"><span>Live</span><span>Alerts</span></div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3 - placeholder, add content later -->
+        <div class="slide">
+          <div class="uni-badge">
+            <svg class="badge-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Student Portal
+          </div>
+          <h1>Submit.<br/><em>Track.</em><br/>Improve.</h1>
+          <div class="left-divider"></div>
+          <p class="tagline">
+            Log in as a student to view your enrolled units, check quiz and assignment marks released by staff, and download your risk status report after it has been generated by a staff member.
+          </p>
+          <div class="stats-strip">
+            <div class="stat-item"><span>10</span><span>Quizzes</span></div>
+            <div class="stat-item"><span>2</span><span>Assignments</span></div>
+            <div class="stat-item"><span>Live</span><span>Risk Score</span></div>
+          </div>
+        </div>
+
+      </div><!-- /slideshow -->
+
+    </div><!-- /panel-left-content -->
+
+    <!-- Dots - vertical right edge -->
+    <div class="slide-dots" id="slideDots">
+      <div class="dot active" onclick="goToSlide(0)"></div>
+      <div class="dot" onclick="goToSlide(1)"></div>
+      <div class="dot" onclick="goToSlide(2)"></div>
+    </div>
+  </div>
+
+  <!-- -- RIGHT PANEL -------------------------------------- -->
+  <div class="panel-right">
+    <form class="login-form" id="loginForm" action="/login" method="POST">
+
+      <div class="form-header">
+        <div class="form-logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="logo-text">EduGuardian <span>AI</span></div>
+        </div>
+        <h2>Sign In</h2>
+        <p>Access your university portal</p>
+      </div>
+
+      <!-- Role Selector - Student & Staff only -->
+      <div class="role-pills">
+        <button type="button" class="pill active" onclick="setRole(this)">Student</button>
+        <button type="button" class="pill" onclick="setRole(this)">Staff</button>
+      </div>
+
+      <input type="hidden" name="role" id="roleField" value="student">
+
+      <!-- Error -->
+      {% if error %}
+      <div class="error-msg show">{{ error }}</div>
+      {% else %}
+      <div class="error-msg" id="errorMsg"></div>
+      {% endif %}
+
+
+      <!-- Username -->
+      <div class="input-group">
+        <input type="text" name="username" id="username" placeholder="Student ID or Email" autocomplete="username" required />
+        <span class="input-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </span>
+      </div>
+
+      <!-- Password -->
+      <div class="input-group" style="position:relative;">
+        <input type="password" name="password" id="password" placeholder="Password" autocomplete="current-password" required style="padding-right:2.8rem;" />
+        <span class="input-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </span>
+        <button type="button" id="eyeToggle" onclick="togglePassword()" aria-label="Toggle password"
+          style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-light);display:flex;align-items:center;padding:0;transition:color 0.2s;">
+          <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Remember + Login Help -->
+      <div class="form-row">
+        <label class="remember">
+          <input type="checkbox" id="rememberMe" /> Remember me
+        </label>
+        <button type="button" class="btn-link" onclick="openModal('modalLoginHelp')">Login Help</button>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-login" id="loginBtn">
+        <span class="btn-text">Sign In</span>
+        <span class="spinner"></span>
+      </button>
+
+      <div class="form-footer">
+        <button type="button" class="btn-link" onclick="openModal('modalITSupport')">Contact IT Support</button>
+      </div>
+
+    </form>
+  </div>
+
+</div><!-- /card -->
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+
+/* -- Role switch ---------------------------------------- */
+function setRole(el) {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    const role = el.textContent.trim().toLowerCase();
+    document.getElementById('roleField').value = role;
+    document.getElementById('username').placeholder = role === 'student' ? 'Student ID or Email' : 'Staff ID or Email';
+}
+
+/* -- Modals --------------------------------------------- */
+function openModal(id) {
+  const el = document.getElementById(id);
+  el.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) closeModal(this.id);
+  });
+});
+// Close on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+  }
+});
+
+/* -- Remember Me --------------------------------------------------- */
+(function() {
+  var saved = localStorage.getItem('eguardian_email');
+  if (saved) {
+    document.getElementById('username').value = saved;
+    var cb = document.getElementById('rememberMe');
+    if (cb) cb.checked = true;
+  }
+})();
+
+document.getElementById('loginForm').addEventListener('submit', function() {
+  var cb = document.getElementById('rememberMe');
+  if (cb && cb.checked) {
+    localStorage.setItem('eguardian_email', document.getElementById('username').value.trim());
+  } else {
+    localStorage.removeItem('eguardian_email');
+  }
+});
+
+/* -- Password eye toggle ------------------------------------------- */
+function togglePassword() {
+  var pw  = document.getElementById('password');
+  var btn = document.getElementById('eyeToggle');
+  var hidden = pw.type === 'password';
+  pw.type = hidden ? 'text' : 'password';
+  btn.style.color = hidden ? 'var(--coral)' : 'var(--text-light)';
+  var eyeOpen  = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  var eyeClosed = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/>';
+  btn.querySelector('svg').innerHTML = hidden ? eyeClosed : eyeOpen;
+}
+
+/* -- Slideshow ------------------------------------------ */
+const slides = document.querySelectorAll('.slide');
+const dots   = document.querySelectorAll('.dot');
+let current  = 0;
+let timer;
+
+function goToSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+  resetTimer();
+}
+
+function nextSlide() {
+  goToSlide((current + 1) % slides.length);
+}
+
+function resetTimer() {
+  clearInterval(timer);
+  timer = setInterval(nextSlide, 4500);
+}
+
+resetTimer();
+</script>
+</body>
+</html>
