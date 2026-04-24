@@ -58,6 +58,7 @@ EduGuardian AI is a hybrid AI system that:
 
 ## Repository Structure
 
+```text
 EduGuardian-AI/
 |
 +-- EduGuardianAI_SourceCode/
